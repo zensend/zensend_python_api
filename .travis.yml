@@ -11,3 +11,6 @@ install:
   - pip install -e .[test]
 
 script: python tests.py
+
+notifications:
+  slack: fonix:iSQCPc4UbhlgRbSyndwuqCTB
