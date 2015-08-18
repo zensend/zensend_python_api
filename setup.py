@@ -22,7 +22,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/fonixcode/zensend_python_api',
+    url='https://github.com/zensend/zensend_python_api',
 
     # Author details
     author='ZenSend',
