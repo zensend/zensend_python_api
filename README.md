@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/zensend/zensend_python_api.svg?branch=master)](https://travis-ci.org/zensend/zensend_python_api)
+
 # ZenSend Python bindings 
 
 ## Installation
