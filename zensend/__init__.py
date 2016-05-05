@@ -26,6 +26,10 @@ class SmsResponse:
   cost_in_pence = None
   new_balance_in_pence = None
 
+class CreateKeywordResponse:
+  cost_in_pence = None
+  new_balance_in_pence = None
+
 class OperatorLookupResponse:
   mnc = None
   mcc = None
@@ -75,6 +79,20 @@ class Client:
     response.encoding = json["encoding"]
     response.numbers = json["numbers"]
     response.tx_guid = json["txguid"]
+    response.cost_in_pence = json["cost_in_pence"]
+    response.new_balance_in_pence = json["new_balance_in_pence"]
+    return response
+
+  def create_keyword(self, shortcode, keyword, is_sticky = None, mo_url = None):
+    params = {"SHORTCODE": shortcode, "KEYWORD": keyword}
+    if is_sticky is not None:
+      params["IS_STICKY"] = "true" if is_sticky else "false"
+    if mo_url is not None:
+      params["MO_URL"] = mo_url
+  
+    result = requests.post(self.url + "/v3/keywords", params, headers = {"X-API-KEY": self.api_key})
+    json = self.__handle_result(result)
+    response = CreateKeywordResponse()
     response.cost_in_pence = json["cost_in_pence"]
     response.new_balance_in_pence = json["new_balance_in_pence"]
     return response

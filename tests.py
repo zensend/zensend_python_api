@@ -41,6 +41,46 @@ class TestZenSend(unittest2.TestCase):
     self.assertEqual(responses.calls[0].request.headers["X-API-KEY"], "api_key")
 
   @responses.activate 
+  def test_create_keyword(self):
+    responses.add(responses.POST,  "https://api.zensend.io/v3/keywords", body="""
+    {
+      "success": {
+          "cost_in_pence": 5.4,
+          "new_balance_in_pence":10.2
+      }
+    }
+""", status=200, content_type='application/json')
+
+    client = zensend.Client("api_key")
+    response = client.create_keyword(shortcode = "SC", keyword = "KW")
+    self.assertEqual(response.cost_in_pence, 5.4)
+    self.assertEqual(response.new_balance_in_pence, 10.2)
+
+    self.assertEqual(len(responses.calls), 1)
+    self.assertEqual(responses.calls[0].request.headers["X-API-KEY"], "api_key")
+    self.assertEqual(self.canonicalize(responses.calls[0].request.body), self.canonicalize("SHORTCODE=SC&KEYWORD=KW"))
+
+  @responses.activate 
+  def test_create_keyword_with_options(self):
+    responses.add(responses.POST,  "https://api.zensend.io/v3/keywords", body="""
+    {
+      "success": {
+          "cost_in_pence": 5.4,
+          "new_balance_in_pence":10.2
+      }
+    }
+""", status=200, content_type='application/json')
+
+    client = zensend.Client("api_key")
+    response = client.create_keyword(shortcode = "SC", keyword = "KW", is_sticky = True, mo_url = "http://mo")
+    self.assertEqual(response.cost_in_pence, 5.4)
+    self.assertEqual(response.new_balance_in_pence, 10.2)
+
+    self.assertEqual(len(responses.calls), 1)
+    self.assertEqual(responses.calls[0].request.headers["X-API-KEY"], "api_key")
+    self.assertEqual(self.canonicalize(responses.calls[0].request.body), self.canonicalize("IS_STICKY=true&KEYWORD=KW&SHORTCODE=SC&MO_URL=http%3A%2F%2Fmo"))
+
+  @responses.activate 
   def test_send_sms(self):
     responses.add(responses.POST,  "https://api.zensend.io/v3/sendsms", body="""
     {
