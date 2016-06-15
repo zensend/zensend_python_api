@@ -68,6 +68,53 @@ class TestZenSend(unittest2.TestCase):
     self.assertEqual(responses.calls[0].request.headers["X-API-KEY"], "api_key")
     self.assertEqual(self.canonicalize(responses.calls[0].request.body), self.canonicalize("BODY=BODY&ORIGINATOR=ORIG&NUMBERS=447796354848%2C447796354849"))
 
+  @responses.activate
+  def test_create_msisdn_verification(self):
+    responses.add(responses.POST, "https://verify.zensend.io/api/msisdn_verify", body="""
+    {
+      "success": {
+        "session": "SESS"
+      }
+    }
+""", status = 200, content_type = 'application/json')
+
+    client = zensend.Client("api_key")
+
+    session = client.create_msisdn_verification("44123456790")
+    self.assertEqual(session, "SESS")
+    self.assertEqual(self.canonicalize(responses.calls[0].request.body), self.canonicalize("NUMBER=44123456790"))
+
+  @responses.activate
+  def test_create_msisdn_verification_with_params(self):
+    responses.add(responses.POST, "https://verify.zensend.io/api/msisdn_verify", body="""
+    {
+      "success": {
+        "session": "SESS"
+      }
+    }
+""", status = 200, content_type = 'application/json')
+
+    client = zensend.Client("api_key")
+
+    session = client.create_msisdn_verification("44123456790", "message", "orig")
+    self.assertEqual(session, "SESS")
+    self.assertEqual(self.canonicalize(responses.calls[0].request.body), self.canonicalize("NUMBER=44123456790&MESSAGE=message&ORIGINATOR=orig"))
+
+  @responses.activate
+  def test_msisdn_verification_status(self):
+    responses.add(responses.GET, "https://verify.zensend.io/api/msisdn_verify", body="""
+    {
+      "success": {"msisdn": "441234567890"}
+    }
+""", status=200, content_type='application/json')
+
+    client = zensend.Client("api_key")
+    msisdn = client.msisdn_verification_status("SESS")
+    self.assertEqual(msisdn, "441234567890")
+    self.assertEqual(len(responses.calls), 1)
+
+    self.assertEqual(responses.calls[0].request.url, "https://verify.zensend.io/api/msisdn_verify?SESSION=SESS")
+
   @responses.activate 
   def test_operator_lookup(self):
     responses.add(responses.GET,  "https://api.zensend.io/v3/operator_lookup", body="""
@@ -92,6 +139,7 @@ class TestZenSend(unittest2.TestCase):
 
     self.assertEqual(len(responses.calls), 1)
     self.assertEqual(responses.calls[0].request.headers["X-API-KEY"], "api_key")
+
 
   @responses.activate 
   def test_operator_lookup_fails(self):

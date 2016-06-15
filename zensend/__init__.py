@@ -34,9 +34,10 @@ class OperatorLookupResponse:
   new_balance_in_pence = None
 
 class Client:
-  def __init__(self, api_key, url = "https://api.zensend.io"):
+  def __init__(self, api_key, url = "https://api.zensend.io", verify_url = "https://verify.zensend.io"):
     self.api_key = api_key
     self.url = url
+    self.verify_url = verify_url
 
   def check_balance(self):
     result = requests.get(self.url + "/v3/checkbalance", headers = {"X-API-KEY": self.api_key})
@@ -58,6 +59,25 @@ class Client:
     result = requests.get(self.url + "/v3/prices", headers = {"X-API-KEY": self.api_key})
     json = self.__handle_result(result)
     return json["prices_in_pence"]
+
+  def create_msisdn_verification(self, number, message = None, originator = None):
+    params = {"NUMBER": number}
+
+    if message is not None:
+      params["MESSAGE"] = message
+    if originator is not None:
+      params["ORIGINATOR"] = originator
+
+    result = requests.post(self.verify_url + "/api/msisdn_verify", params, headers = {"X-API-KEY": self.api_key})
+
+    json = self.__handle_result(result)
+
+    return json["session"]
+
+  def msisdn_verification_status(self, session):
+    result = requests.get(self.verify_url + "/api/msisdn_verify", params = {"SESSION": session}, headers = {"X-API-KEY": self.api_key})
+    json = self.__handle_result(result)
+    return json["msisdn"]
 
   def send_sms(self, body, originator, numbers, timetolive_in_minutes = None, originator_type = None, encoding = None):
     params = {"BODY": body, "ORIGINATOR": originator, "NUMBERS": ",".join(self.__no_commas(numbers))}
