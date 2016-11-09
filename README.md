@@ -38,3 +38,7 @@ We commit to being compatible with Python 2.6+, Python 3.3+ and PyPy.  We need t
     client = zensend.Client("Yw4jIcm9qhofQfxFs2iaxQ", "http://localhost:8084")
     response = client.lookup_operator("441234567890")
 
+## Uploading to pypi
+
+    python setup.py sdist upload
+
