@@ -33,6 +33,10 @@ class OperatorLookupResponse:
   cost_in_pence = None
   new_balance_in_pence = None
 
+class CreateSubAccountResponse:
+  name = None
+  api_key = None
+
 class Client:
   def __init__(self, api_key, url = "https://api.zensend.io", verify_url = "https://verify.zensend.io"):
     self.api_key = api_key
@@ -78,6 +82,17 @@ class Client:
     result = requests.get(self.verify_url + "/api/msisdn_verify", params = {"SESSION": session}, headers = {"X-API-KEY": self.api_key})
     json = self.__handle_result(result)
     return json["msisdn"]
+
+  def create_sub_account(self, name):
+    params = {"NAME": name}
+    result = requests.post(self.url + "/v3/sub_accounts", params, headers = {"X-API-KEY": self.api_key})
+    json = self.__handle_result(result)
+    response = CreateSubAccountResponse()
+    response.name = json["name"]
+    response.api_key = json["api_key"]
+
+    return response
+
 
   def send_sms(self, body, originator, numbers, timetolive_in_minutes = None, originator_type = None, encoding = None):
     params = {"BODY": body, "ORIGINATOR": originator, "NUMBERS": ",".join(self.__no_commas(numbers))}

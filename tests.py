@@ -40,6 +40,24 @@ class TestZenSend(unittest2.TestCase):
     self.assertEqual(len(responses.calls), 1)
     self.assertEqual(responses.calls[0].request.headers["X-API-KEY"], "api_key")
 
+  @responses.activate
+  def test_create_sub_account(self):
+    responses.add(responses.POST, "https://api.zensend.io/v3/sub_accounts", body="""
+
+    {
+      "success":{
+        "name": "Name",
+        "api_key": "ApiKey"
+      }
+    }
+  """, status=200, content_type='application/json')
+
+    client = zensend.Client("api_key")
+    response = client.create_sub_account(name = "Name")
+    self.assertEqual(response.name, "Name")
+    self.assertEqual(response.api_key, "ApiKey")
+    self.assertEqual(self.canonicalize(responses.calls[0].request.body), self.canonicalize("NAME=Name"))
+
   @responses.activate 
   def test_send_sms(self):
     responses.add(responses.POST,  "https://api.zensend.io/v3/sendsms", body="""
